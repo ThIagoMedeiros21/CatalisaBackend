@@ -5,7 +5,12 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.exc import OperationalError
 from fastapi import HTTPException
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError(
+        "Missing required environment variable 'DATABASE_URL'. "
+        "Set it before starting the application."
+    )
 engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
