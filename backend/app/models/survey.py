@@ -15,6 +15,7 @@ class Pesquisa(Base):
     is_active = Column(Boolean)
 
 class Resposta(Base):
+
     __tablename__ = "responses"
 
     id = Column(Integer, primary_key=True)
@@ -23,6 +24,7 @@ class Resposta(Base):
     submitted_at = Column(DateTime)
 
 class LogAB(Base):
+    
     __tablename__ = "log_a_b"
 
     id = Column(Integer, primary_key=True)
