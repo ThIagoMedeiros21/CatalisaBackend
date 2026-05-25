@@ -57,5 +57,4 @@ def downgrade() -> None:
     op.drop_table('responses')
     op.drop_table('log_a_b')
     op.drop_table('surveys')
-    op.execute("DROP TYPE IF EXISTS respondenttype")
     # ### end Alembic commands ###
