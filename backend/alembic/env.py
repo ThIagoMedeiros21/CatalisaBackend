@@ -11,8 +11,10 @@ config = context.config
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
+database_url = os.getenv("DATABASE_URL")
+if database_url is None:
+    raise RuntimeError("DATABASE_URL environment variable is required for Alembic migrations.")
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
