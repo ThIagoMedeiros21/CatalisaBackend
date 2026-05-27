@@ -1,5 +1,4 @@
 services:
-
   db:
     image: postgres:16
     restart: unless-stopped
@@ -11,17 +10,15 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
   backend:
     build: ./backend
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://catalisa:catalisa123@db:5432/catalisa_db
+      DATABASE_URL: postgresql+psycopg2://catalisa:catalisa123@db:5432/catalisa_db
     depends_on:
       - db
     volumes:
       - ./backend:/app
-
 volumes:
   postgres_data:
