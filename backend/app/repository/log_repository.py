@@ -53,3 +53,13 @@ def delete_log(db: Session, id: int):
     db.commit()
     return found
 
+def update_log(db: Session, id: int, accesses: int, dropouts: int, accessibility_interactions: int):
+    found = db.query(LogAB).filter_by(id=id).first()
+    if not found:
+        return None
+    found.accesses = accesses
+    found.dropouts = dropouts
+    found.accessibility_interactions = accessibility_interactions
+    db.commit()
+    return found
+     
