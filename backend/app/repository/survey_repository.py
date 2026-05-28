@@ -15,6 +15,11 @@ def get_survey(db: Session, id: int):
 def get_all_survey(db: Session):
     return db.query(Pesquisa).all()
 
+def found_by_title_and_respondent(db: Session, title: str, respondent_type: RespondentType):
+    return db.query(Pesquisa).filter(
+    Pesquisa.title == title,
+    Pesquisa.respondent_type == respondent_type
+    ).first()
 
 def update_survey(db: Session, id: int, title: str, respondent_type: RespondentType, is_active: bool):
     found = db.query(Pesquisa).filter_by(id = id).first()
