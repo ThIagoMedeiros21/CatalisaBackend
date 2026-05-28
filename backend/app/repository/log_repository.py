@@ -15,6 +15,12 @@ def get_log(db: Session, id: int):
 def get_all_log(db: Session):
     return db.query(LogAB).all()
 
+def get_by_session_survey(db: Session, survey_id: int, session_id: str):
+    return db.query(LogAB).filter(
+        LogAB.survey_id == survey_id,
+        LogAB.session_id == session_id
+    ).first()
+
 def increment_access(db: Session, id: int):
     found = db.query(LogAB).filter_by(id=id).first()
     if not found:
