@@ -9,11 +9,11 @@ from app.schemas.survey import SurveyUpdate
 
 router = APIRouter()
 
-@router.get("/getallsurveys")
+@router.get("")
 def get_all_surveys(db: Session = Depends(get_db)):
     return survey_service.get_all_survey(db)
 
-@router.get("/getsurvey/{id}")
+@router.get("/{id}")
 def get_survey(id: int, db: Session = Depends(get_db)):
 
     survey = survey_service.get_survey(db, id)
@@ -23,7 +23,7 @@ def get_survey(id: int, db: Session = Depends(get_db)):
     else:
         return survey
     
-@router.delete("/deletesurvey/{id}")
+@router.delete("/{id}")
 def delete_survey(id: int, db: Session = Depends(get_db)):
     survey = survey_service.get_survey(db, id)
     if survey is None:
@@ -32,14 +32,14 @@ def delete_survey(id: int, db: Session = Depends(get_db)):
         survey_service.delete_survey(db,id)
         return Response(status_code=204)
 
-@router.post("/createsurvey")
+@router.post("")
 def create_survey(data: SurveyCreate, db: Session = Depends(get_db)):
     resultado = survey_service.create_survey(db, data.title, data.respondent_type, data.is_active)
     if resultado is None:
         raise HTTPException(status_code=409, detail="Survey já existe") 
     return resultado
 
-@router.put("/updatesurvey/{id}")
+@router.put("/{id}")#colcoar o patch
 def update_survey(data: SurveyUpdate, id:int, db: Session = Depends(get_db),):
     survey = survey_service.get_survey(db, id)
     if survey is None:
