@@ -8,7 +8,7 @@ def create_responses(db: Session, survey_id: int, answered_data: dict):
         return None
     if not survey.is_active:
         return None
-    if not answered_data:
+    if not answered_data or not any(v for v in answered_data.values()):
         return None
     return responses_repository.create_responses(db, survey_id, answered_data)
 
