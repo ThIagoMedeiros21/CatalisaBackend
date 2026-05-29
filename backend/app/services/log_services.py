@@ -1,4 +1,3 @@
-# log_service.py
 from sqlalchemy.orm import Session
 from app.repository import log_repository
 from app.repository import survey_repository
