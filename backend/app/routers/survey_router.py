@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from fastapi import Response
 from app.database import get_db
-from backend.app.schemas.survey_schema import SurveyCreate
-from backend.app.schemas.survey_schema import SurveyUpdate
+from app.schemas.survey_schema import SurveyCreate
+from app.schemas.survey_schema import SurveyUpdate
 
 router = APIRouter()
 
