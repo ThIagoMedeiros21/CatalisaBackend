@@ -2,7 +2,7 @@ from app.services import log_services
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from app.database import get_db
-
+from app.schemas.log_schema import LogCreate
 router = APIRouter()
 
 @router.get("")
