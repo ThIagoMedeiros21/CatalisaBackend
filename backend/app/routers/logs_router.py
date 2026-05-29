@@ -1,5 +1,5 @@
 from app.services import log_services
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from app.database import get_db
 
@@ -11,19 +11,18 @@ def get_all_logs(db: Session = Depends(get_db)):
 
 @router.get("/{id}")
 def get_log(id: int, db: Session = Depends(get_db)):
-    log = log_services.get_log(id)
+    log = log_services.get_log(db, id)  # faltava db
     if log is None:
-        raise HTTPException(status_code=404, detail = "Log não encontrado")
-    
+        raise HTTPException(status_code=404, detail="Log não encontrado")
     return log
 
 @router.delete("/{id}")
 def delete_log(id: int, db: Session = Depends(get_db)):
-    log = log_services.delete_log(db, id)
+    log = log_services.get_log(db, id)  # checar antes
     if log is None:
-        raise HTTPException(status_code = 404, detail = "Log não encontrado")
-
-    return log
+        raise HTTPException(status_code=404, detail="Log não encontrado")
+    log_services.delete_log(db, id)
+    return Response(status_code=204)
 
 @router.post("", status_code=201)
 def create_log(data: LogCreate, db: Session = Depends(get_db)):
