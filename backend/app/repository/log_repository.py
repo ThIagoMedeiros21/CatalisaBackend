@@ -53,6 +53,9 @@ def delete_log(db: Session, id: int):
     db.commit()
     return found
 
+def exists_by_survey(db: Session, survey_id: int):
+    return db.query(LogAB).filter_by(survey_id=survey_id).first() is not None
+
 def update_log(db: Session, id: int, accesses: int, dropouts: int, accessibility_interactions: int):
     found = db.query(LogAB).filter_by(id=id).first()
     if not found:

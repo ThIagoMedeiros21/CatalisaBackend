@@ -11,6 +11,9 @@ def create_responses(db: Session, survey_id: int, answered_data: dict):
 def get_responses(db: Session, id: int):
     return db.query(Resposta).filter_by(id=id).first()
 
+def exists_by_survey(db: Session, survey_id: int):
+    return db.query(Resposta).filter_by(survey_id=survey_id).first() is not None
+
 def get_all_responses(db: Session):
     return db.query(Resposta).all()
 
