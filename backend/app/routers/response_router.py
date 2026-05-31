@@ -1,5 +1,5 @@
 from app.services import responses_services
-from app.schemas.responses import ResponsesCreate
+from app.schemas.response_schema import ResponsesCreate
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from app.database import get_db
