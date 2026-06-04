@@ -27,6 +27,7 @@ def increment_access(db: Session, id: int):
         return None
     found.accesses += 1
     db.commit()
+    db.refresh(found)
     return found
 
 def increment_dropout(db: Session, id: int):
@@ -35,6 +36,7 @@ def increment_dropout(db: Session, id: int):
         return None
     found.dropouts += 1
     db.commit()
+    db.refresh(found)
     return found
 
 def increment_accessibility_interaction(db: Session, id: int):
@@ -43,6 +45,7 @@ def increment_accessibility_interaction(db: Session, id: int):
         return None
     found.accessibility_interactions += 1
     db.commit()
+    db.refresh(found)
     return found
 
 def delete_log(db: Session, id: int):
