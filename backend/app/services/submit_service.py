@@ -1,13 +1,31 @@
 from sqlalchemy.orm import Session
-from app.repository import survey_repository, responses_repository
+from sqlalchemy import select
+from app.models import Survey  # ajuste o import pro seu modelo
+from app.repository import responses_repository
 
 def submit(db: Session, title: str, respondent_type, answered_data: dict):
-    survey = survey_repository.found_by_title_and_respondent(db, title, respondent_type)
-    if not survey:
-        return None
-    if not survey.is_active:
-        return None
+
     if not answered_data or not any(v for v in answered_data.values()):
         return None
-    response = responses_repository.create_responses(db, survey.id, answered_data)
-    return {"survey": survey, "response": response}
+
+    try:
+        survey = (
+            db.execute(
+                select(Survey)
+                .where(Survey.title == title, Survey.respondent_type == respondent_type)
+                .with_for_update()  
+            )
+            .scalars()
+            .first()
+        )
+
+        if not survey or not survey.is_active:
+            return None
+
+        response = responses_repository.create_responses(db, survey.id, answered_data)
+        db.commit()
+        return {"survey": survey, "response": response}
+
+    except Exception:
+        db.rollback()
+        raise
