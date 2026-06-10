@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from app.models import Survey  # ajuste o import pro seu modelo
+from app.models import survey  
 from app.repository import responses_repository
 
 def submit(db: Session, title: str, respondent_type, answered_data: dict):
@@ -11,8 +11,8 @@ def submit(db: Session, title: str, respondent_type, answered_data: dict):
     try:
         survey = (
             db.execute(
-                select(Survey)
-                .where(Survey.title == title, Survey.respondent_type == respondent_type)
+                select(survey)
+                .where(survey.title == title, survey.respondent_type == respondent_type)
                 .with_for_update()  
             )
             .scalars()
