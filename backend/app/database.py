@@ -27,15 +27,13 @@ Base = declarative_base()
 
 def get_db():
     db = SessionLocal()
-
     try:
         yield db
-
     except OperationalError:
-        raise HTTPException(
-            status_code=503,
-            detail="Não foi possível conectar ao banco de dados."
-        )
-
+        db.rollback()
+        raise HTTPException(status_code=503, detail="Database indisponivel")
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
