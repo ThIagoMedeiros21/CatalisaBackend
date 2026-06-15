@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Enum, Index
 from sqlalchemy.sql import func
 from app.database import Base
 from sqlalchemy.dialects.postgresql import JSONB
@@ -13,6 +13,11 @@ class Pesquisa(Base):
     respondent_type = Column(Enum(RespondentType), nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
+
+    __table_args__ = (
+        Index('ix_surveys_title_type', 'title', 'respondent_type'),
+        {},
+    )
 
 class Resposta(Base):
 
@@ -34,3 +39,4 @@ class LogAB(Base):
     accesses = Column(Integer, default=0, nullable=False)
     dropouts = Column(Integer, default=0, nullable=False)
     accessibility_interactions = Column(Integer, default=0, nullable=False)
+
