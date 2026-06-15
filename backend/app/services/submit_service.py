@@ -1,7 +1,10 @@
+import logging
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from app.models import survey  
+from app.models import survey
 from app.repository import responses_repository
+
+logger = logging.getLogger(__name__)
 
 def submit(db: Session, title: str, respondent_type, answered_data: dict):
 
@@ -28,4 +31,5 @@ def submit(db: Session, title: str, respondent_type, answered_data: dict):
 
     except Exception:
         db.rollback()
+        logger.exception("Erro ao submeter resposta para a survey '%s'", title)
         raise

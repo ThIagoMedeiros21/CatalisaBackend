@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.core.logging_config import setup_logging
 from app.routers import survey_router
 from app.routers import logs_router
 from app.routers import response_router
 from app.routers import submit_router
+
+setup_logging()
 
 app = FastAPI()
 

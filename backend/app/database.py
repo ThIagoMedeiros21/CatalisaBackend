@@ -1,9 +1,12 @@
 import os
+import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.exc import OperationalError
 from fastapi import HTTPException
+
+logger = logging.getLogger(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
@@ -31,9 +34,11 @@ def get_db():
         yield db
     except OperationalError:
         db.rollback()
+        logger.exception("Database indisponivel")
         raise HTTPException(status_code=503, detail="Database indisponivel")
     except Exception:
         db.rollback()
+        logger.exception("Erro inesperado durante a sessao do banco de dados")
         raise
     finally:
         db.close()
