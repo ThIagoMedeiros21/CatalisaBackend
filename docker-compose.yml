@@ -16,8 +16,6 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql+psycopg2://catalisa:catalisa123@db:5432/catalisa_db
-      AB_URL_EVEN: ${AB_URL_EVEN:-https://catalisa-frontend-mt.vercel.app}
-      AB_URL_ODD: ${AB_URL_ODD:-https://gemini.google.com/app}
     depends_on:
       - db
     volumes:

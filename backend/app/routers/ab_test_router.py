@@ -26,7 +26,7 @@ def ab_test_redirect(ab_user_id: str | None = Cookie(default=None)):
 
     target = ab_test_service.target_url_for(user_id)
     if target is None:
-        raise HTTPException(status_code=500, detail="AB_URL_EVEN/AB_URL_ODD não configurados")
+        raise HTTPException(status_code=500, detail="URLs não configuradas")
 
     response = RedirectResponse(url=target, status_code=302)
     if is_new:
