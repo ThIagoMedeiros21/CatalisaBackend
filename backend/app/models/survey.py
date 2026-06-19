@@ -29,6 +29,4 @@ class LogAB(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     response_id = Column(Integer, ForeignKey("responses.id"), nullable=False)
-    accesses = Column(Integer, default=0, nullable=False)
-    dropouts = Column(Integer, default=0, nullable=False)
-    accessibility_interactions = Column(Integer, default=0, nullable=False)
+    data = Column(JSONB, nullable=False)

@@ -20,6 +20,14 @@ def get_log(id: int, db: Session = Depends(get_db)):
     return log
 
 
+@router.post("", status_code=201)
+def create_log(data: LogCreate, db: Session = Depends(get_db)):
+    resultado = log_services.create_log(db, data.response_id, data.data)
+    if resultado is None:
+        raise HTTPException(status_code=404, detail="Resposta não encontrada")
+    return resultado
+
+
 @router.delete("/{id}")
 def delete_log(id: int, db: Session = Depends(get_db)):
     log = log_services.get_log(db, id)
@@ -27,35 +35,3 @@ def delete_log(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Log não encontrado")
     log_services.delete_log(db, id)
     return Response(status_code=204)
-
-
-@router.post("", status_code=201)
-def create_log(data: LogCreate, db: Session = Depends(get_db)):
-    resultado = log_services.create_log(db, data.response_id)
-    if resultado is None:
-        raise HTTPException(status_code=404, detail="Resposta não encontrada")
-    return resultado
-
-
-@router.patch("/{id}/access")
-def increment_access(id: int, db: Session = Depends(get_db)):
-    resultado = log_services.increment_access(db, id)
-    if resultado is None:
-        raise HTTPException(status_code=404, detail="Log não encontrado")
-    return resultado
-
-
-@router.patch("/{id}/dropout")
-def increment_dropout(id: int, db: Session = Depends(get_db)):
-    resultado = log_services.increment_dropout(db, id)
-    if resultado is None:
-        raise HTTPException(status_code=404, detail="Log não encontrado")
-    return resultado
-
-
-@router.patch("/{id}/accessibility")
-def increment_accessibility_interaction(id: int, db: Session = Depends(get_db)):
-    resultado = log_services.increment_accessibility_interaction(db, id)
-    if resultado is None:
-        raise HTTPException(status_code=404, detail="Log não encontrado")
-    return resultado
