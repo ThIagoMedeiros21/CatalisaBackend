@@ -29,7 +29,6 @@ class LogAB(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     response_id = Column(Integer, ForeignKey("responses.id"), nullable=False)
-    session_id = Column(String(255), nullable=True)
     accesses = Column(Integer, default=0, nullable=False)
     dropouts = Column(Integer, default=0, nullable=False)
     accessibility_interactions = Column(Integer, default=0, nullable=False)

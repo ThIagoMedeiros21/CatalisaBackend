@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 from app.models.survey import LogAB
 
 
-def create_log(db: Session, response_id: int, session_id: str | None = None):
-    log = LogAB(response_id=response_id, session_id=session_id)
+def create_log(db: Session, response_id: int):
+    log = LogAB(response_id=response_id)
     db.add(log)
     db.commit()
     db.refresh(log)

@@ -3,7 +3,7 @@ from app.repository import log_repository
 from app.repository import responses_repository
 
 
-def create_log(db: Session, response_id: int, session_id: str | None = None):
+def create_log(db: Session, response_id: int):
     response = responses_repository.get_responses(db, response_id)
     if not response:
         return None
@@ -12,7 +12,7 @@ def create_log(db: Session, response_id: int, session_id: str | None = None):
     if existing:
         return existing
 
-    return log_repository.create_log(db, response_id, session_id)
+    return log_repository.create_log(db, response_id)
 
 
 def get_log(db: Session, id: int):
