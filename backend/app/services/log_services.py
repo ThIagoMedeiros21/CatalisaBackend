@@ -10,7 +10,7 @@ def create_log(db: Session, response_id: int, data: dict):
 
     existing = log_repository.get_by_response(db, response_id)
     if existing:
-        return existing
+        return log_repository.update_data(db, existing.id, data)
 
     return log_repository.create_log(db, response_id, data)
 

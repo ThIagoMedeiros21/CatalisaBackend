@@ -22,6 +22,16 @@ def get_by_response(db: Session, response_id: int):
     return db.query(LogAB).filter_by(response_id=response_id).first()
 
 
+def update_data(db: Session, id: int, data: dict):
+    found = db.query(LogAB).filter_by(id=id).first()
+    if not found:
+        return None
+    found.data = data
+    db.commit()
+    db.refresh(found)
+    return found
+
+
 def delete_log(db: Session, id: int):
     found = db.query(LogAB).filter_by(id=id).first()
     if not found:
