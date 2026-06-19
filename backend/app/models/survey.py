@@ -24,13 +24,12 @@ class Resposta(Base):
     submitted_at = Column(DateTime, default=func.now(), nullable=False)
 
 class LogAB(Base):
-    
+
     __tablename__ = "log_a_b"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    survey_id = Column(Integer, ForeignKey("surveys.id"), nullable=False)
-    session_id = Column(String(255), nullable=False)
-    respondent_type = Column(Enum(RespondentType), nullable=False)
+    response_id = Column(Integer, ForeignKey("responses.id"), nullable=False)
+    session_id = Column(String(255), nullable=True)
     accesses = Column(Integer, default=0, nullable=False)
     dropouts = Column(Integer, default=0, nullable=False)
     accessibility_interactions = Column(Integer, default=0, nullable=False)

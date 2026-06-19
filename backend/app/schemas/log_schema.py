@@ -1,18 +1,15 @@
 from pydantic import BaseModel
-from app.enums import RespondentType
 
 
 class LogCreate(BaseModel):
-    survey_id: int
-    session_id: str
-    respondent_type: RespondentType
+    response_id: int
+    session_id: str | None = None
 
 
 class LogResponse(BaseModel):
     id: int
-    survey_id: int
-    session_id: str
-    respondent_type: RespondentType
+    response_id: int
+    session_id: str | None
     accesses: int
     dropouts: int
     accessibility_interactions: int
