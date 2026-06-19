@@ -31,7 +31,7 @@ def delete_log(id: int, db: Session = Depends(get_db)):
 
 @router.post("", status_code=201)
 def create_log(data: LogCreate, db: Session = Depends(get_db)):
-    resultado = log_services.create_log(db, data.response_id, data.session_id)
+    resultado = log_services.create_log(db, data.response_id)
     if resultado is None:
         raise HTTPException(status_code=404, detail="Resposta não encontrada")
     return resultado
