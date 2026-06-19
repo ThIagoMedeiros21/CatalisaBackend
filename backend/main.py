@@ -5,6 +5,7 @@ from app.routers import logs_router
 from app.routers import response_router
 from app.routers import submit_router
 from app.routers import ab_test_router
+from app.routers import dashboard_router
 
 app = FastAPI()
 
@@ -25,3 +26,4 @@ app.include_router(logs_router.router, prefix="/logs", tags=["Logs"])
 app.include_router(response_router.router, prefix="/responses", tags=["Responses"])
 app.include_router(submit_router.router, prefix="/submit", tags=["Submit"])
 app.include_router(ab_test_router.router, prefix="/ab-test", tags=["AB Test"])
+app.include_router(dashboard_router.router, prefix="/dashboard", tags=["Dashboard"])

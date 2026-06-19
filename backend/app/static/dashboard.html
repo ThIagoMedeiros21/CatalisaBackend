@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catalisa — Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --bg-2: #0f172a;
+      --panel: #111c33;
+      --panel-2: #1a2746;
+      --border: #233056;
+      --text: #e6edf7;
+      --muted: #8b9bbf;
+      --accent: #38bdf8;
+      --accent-2: #818cf8;
+      --green: #4ade80;
+      --red: #f87171;
+      --yellow: #facc15;
+      --purple: #a78bfa;
+      --orange: #fb923c;
+      --pink: #f472b6;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header {
+      padding: 22px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      background: rgba(11, 18, 32, 0.85);
+      z-index: 10;
+    }
+    header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    header .meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+    header .controls { display: flex; align-items: center; gap: 12px; }
+
+    .switch {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--muted); user-select: none;
+    }
+    .switch input { accent-color: var(--accent); }
+
+    .btn {
+      background: var(--accent);
+      color: #0b1220;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      transition: transform 0.05s, opacity 0.1s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+
+    main {
+      padding: 28px 32px 64px;
+      display: grid;
+      gap: 28px;
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 12px 4px;
+      font-weight: 600;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+    }
+
+    .kpi {
+      background: linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi::after {
+      content: "";
+      position: absolute;
+      top: 0; right: 0;
+      width: 80px; height: 80px;
+      background: radial-gradient(circle at top right, rgba(56,189,248,0.15), transparent 60%);
+      pointer-events: none;
+    }
+    .kpi .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
+    .kpi .value { font-size: 30px; font-weight: 700; margin-top: 6px; letter-spacing: -0.5px; }
+    .kpi .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .kpi.accent .value { color: var(--accent); }
+    .kpi.green .value { color: var(--green); }
+    .kpi.red .value { color: var(--red); }
+    .kpi.purple .value { color: var(--purple); }
+    .kpi.yellow .value { color: var(--yellow); }
+
+    .panels {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 20px;
+    }
+    .panels.three { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex; flex-direction: column;
+    }
+    .panel h2 {
+      margin: 0 0 14px 0;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .panel h2 .badge {
+      font-size: 11px; font-weight: 500; color: var(--muted);
+      background: var(--panel-2); padding: 3px 8px; border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .panel .chart-wrap { position: relative; height: 280px; }
+    .panel.tall .chart-wrap { height: 320px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 500; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.6px; }
+    tr:last-child td { border-bottom: none; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill {
+      display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px;
+      background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+    }
+    .pill.ok { background: rgba(74,222,128,0.12); color: var(--green); border-color: rgba(74,222,128,0.3); }
+    .pill.off { background: rgba(148,163,184,0.12); color: #94a3b8; }
+
+    .empty { color: var(--muted); font-size: 13px; padding: 14px 4px; text-align: center; }
+
+    .error {
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.4);
+      color: #fecaca;
+      padding: 14px 18px;
+      border-radius: 10px;
+      margin: 0 32px 16px;
+    }
+
+    .loading { color: var(--muted); padding: 64px; text-align: center; font-size: 14px; }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--panel) 25%, var(--panel-2) 50%, var(--panel) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 10px;
+      height: 120px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .pulse {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green); margin-right: 6px;
+      box-shadow: 0 0 0 0 rgba(74,222,128,0.6);
+      animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
+      70% { box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+      100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Catalisa — Dashboard</h1>
+      <div class="meta" id="meta"><span class="pulse"></span>Carregando…</div>
+    </div>
+    <div class="controls">
+      <label class="switch">
+        <input type="checkbox" id="auto-refresh" />
+        Auto-refresh (30s)
+      </label>
+      <button class="btn ghost" id="export">Exportar JSON</button>
+      <button class="btn" id="refresh">Atualizar</button>
+    </div>
+  </header>
+
+  <div id="error" class="error" style="display:none"></div>
+  <div id="loading" class="loading">Carregando dados do dashboard…</div>
+
+  <main id="content" style="display:none">
+    <section>
+      <div class="section-title">Visão geral</div>
+      <div class="kpi-grid" id="kpi-overview"></div>
+    </section>
+
+    <section>
+      <div class="section-title">Pesquisas</div>
+      <div class="panels three">
+        <div class="panel">
+          <h2>Status <span class="badge" id="badge-surveys-status"></span></h2>
+          <div class="chart-wrap"><canvas id="chart-surveys-status"></canvas></div>
+        </div>
+        <div class="panel">
+          <h2>Por tipo de respondente</h2>
+          <div class="chart-wrap"><canvas id="chart-surveys-type"></canvas></div>
+        </div>
+        <div class="panel">
+          <h2>Criadas por mês</h2>
+          <div class="chart-wrap"><canvas id="chart-surveys-monthly"></canvas></div>
+        </div>
+      </div>
+      <div class="panels" style="margin-top: 20px">
+        <div class="panel">
+          <h2>Pesquisas mais recentes</h2>
+          <table id="table-recent-surveys">
+            <thead>
+              <tr><th>ID</th><th>Título</th><th>Tipo</th><th>Status</th><th>Criada</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Respostas</div>
+      <div class="panels">
+        <div class="panel tall">
+          <h2>Top 10 pesquisas por respostas</h2>
+          <div class="chart-wrap"><canvas id="chart-responses-per-survey"></canvas></div>
+        </div>
+        <div class="panel tall">
+          <h2>Respostas (últimos 30 dias) <span class="badge" id="badge-responses-daily"></span></h2>
+          <div class="chart-wrap"><canvas id="chart-responses-daily"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Logs A/B</div>
+      <div class="panels three">
+        <div class="panel">
+          <h2>Distribuição de eventos</h2>
+          <div class="chart-wrap"><canvas id="chart-logs-events"></canvas></div>
+        </div>
+        <div class="panel">
+          <h2>Taxa de dropout</h2>
+          <div class="chart-wrap"><canvas id="chart-logs-dropout"></canvas></div>
+        </div>
+        <div class="panel">
+          <h2>Top respostas mais ativas</h2>
+          <table id="table-top-logs">
+            <thead>
+              <tr><th>Resposta</th><th class="num">Acessos</th><th class="num">Dropouts</th><th class="num">A11y</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Teste A/B (redirect)</div>
+      <div class="panels">
+        <div class="panel">
+          <h2>Distribuição entre targets <span class="badge" id="badge-ab-total"></span></h2>
+          <div class="chart-wrap"><canvas id="chart-ab"></canvas></div>
+        </div>
+        <div class="panel">
+          <h2>Targets configurados</h2>
+          <table id="table-ab-targets">
+            <thead>
+              <tr><th>Target</th><th>URL</th><th class="num">Visitantes</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const DATA_URL = (() => {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("api") || "/dashboard/data";
+    })();
+
+    const charts = {};
+    const PALETTE = ["#38bdf8", "#a78bfa", "#4ade80", "#facc15", "#fb923c", "#f472b6", "#22d3ee", "#818cf8", "#f87171", "#34d399"];
+    let autoTimer = null;
+    let lastData = null;
+
+    Chart.defaults.color = "#8b9bbf";
+    Chart.defaults.borderColor = "#233056";
+    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+
+    function fmtNumber(n) {
+      if (n === null || n === undefined) return "—";
+      return new Intl.NumberFormat("pt-BR").format(n);
+    }
+    function fmtPct(n) {
+      if (n === null || n === undefined) return "—";
+      return `${(n * 100).toFixed(1)}%`;
+    }
+    function fmtDate(iso) {
+      if (!iso) return "—";
+      try { return new Date(iso).toLocaleString("pt-BR"); }
+      catch { return iso; }
+    }
+    function fmtDateShort(iso) {
+      if (!iso) return "—";
+      try { return new Date(iso).toLocaleDateString("pt-BR"); }
+      catch { return iso; }
+    }
+    function fmtRelative(iso) {
+      if (!iso) return "—";
+      const d = new Date(iso);
+      const diffSec = Math.floor((Date.now() - d.getTime()) / 1000);
+      if (diffSec < 60) return "agora";
+      if (diffSec < 3600) return `há ${Math.floor(diffSec/60)} min`;
+      if (diffSec < 86400) return `há ${Math.floor(diffSec/3600)} h`;
+      return `há ${Math.floor(diffSec/86400)} d`;
+    }
+    function truncate(s, n) {
+      if (!s) return "";
+      return s.length > n ? s.slice(0, n - 1) + "…" : s;
+    }
+
+    function makeChart(canvasId, config) {
+      if (charts[canvasId]) charts[canvasId].destroy();
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      charts[canvasId] = new Chart(ctx, config);
+    }
+
+    function renderKpis(d) {
+      const items = [
+        { label: "Pesquisas", value: d.surveys.total, sub: `${fmtNumber(d.surveys.active)} ativas · ${fmtNumber(d.surveys.inactive)} inativas`, cls: "accent" },
+        { label: "Respostas", value: d.responses.total, sub: d.responses.last_submitted_at ? `Última ${fmtRelative(d.responses.last_submitted_at)}` : "Nenhuma ainda", cls: "green" },
+        { label: "Visitantes A/B", value: d.ab_test.total, sub: `${d.ab_test.targets.length} targets`, cls: "purple" },
+        { label: "Acessos (logs)", value: d.logs.accesses, sub: `${fmtNumber(d.logs.dropouts)} dropouts · ${fmtNumber(d.logs.accessibility_interactions)} a11y`, cls: "yellow" },
+        { label: "Taxa de dropout", value: fmtPct(d.logs.dropout_rate), sub: d.logs.accesses ? `${fmtNumber(d.logs.dropouts)} de ${fmtNumber(d.logs.accesses)}` : "Sem acessos", cls: d.logs.dropout_rate > 0.3 ? "red" : "green", raw: true },
+      ];
+      document.getElementById("kpi-overview").innerHTML = items.map(i => `
+        <div class="kpi ${i.cls || ''}">
+          <div class="label">${i.label}</div>
+          <div class="value">${i.raw ? i.value : fmtNumber(i.value)}</div>
+          <div class="sub">${i.sub}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderSurveysStatus(s) {
+      document.getElementById("badge-surveys-status").textContent = `${fmtNumber(s.total)} total`;
+      makeChart("chart-surveys-status", {
+        type: "doughnut",
+        data: {
+          labels: ["Ativas", "Inativas"],
+          datasets: [{ data: [s.active, s.inactive], backgroundColor: ["#4ade80", "#475569"], borderWidth: 0 }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: "65%",
+          plugins: { legend: { position: "bottom", labels: { padding: 14, boxWidth: 12 } } },
+        },
+      });
+    }
+
+    function renderSurveysByType(s) {
+      const sorted = [...s.by_respondent_type].sort((a, b) => b.count - a.count);
+      makeChart("chart-surveys-type", {
+        type: "bar",
+        data: {
+          labels: sorted.map(r => r.respondent_type ?? "—"),
+          datasets: [{ data: sorted.map(r => r.count), backgroundColor: PALETTE, borderRadius: 6 }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, indexAxis: "y",
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { precision: 0 }, grid: { color: "#233056" } },
+            y: { grid: { display: false } },
+          },
+        },
+      });
+    }
+
+    function renderSurveysMonthly(s) {
+      const labels = s.monthly.map(m => {
+        if (!m.month) return "—";
+        const d = new Date(m.month);
+        return d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
+      });
+      makeChart("chart-surveys-monthly", {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            data: s.monthly.map(m => m.count),
+            borderColor: "#38bdf8",
+            backgroundColor: "rgba(56,189,248,0.15)",
+            fill: true, tension: 0.3, pointRadius: 4, pointHoverRadius: 6,
+            pointBackgroundColor: "#38bdf8",
+          }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { ticks: { precision: 0 }, grid: { color: "#233056" } },
+          },
+        },
+      });
+    }
+
+    function renderRecentSurveys(s) {
+      const tbody = document.querySelector("#table-recent-surveys tbody");
+      if (!s.recent.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty">Sem pesquisas ainda</td></tr>`; return; }
+      tbody.innerHTML = s.recent.map(p => `
+        <tr>
+          <td>#${p.id}</td>
+          <td>${truncate(p.title, 60)}</td>
+          <td>${p.respondent_type ?? "—"}</td>
+          <td><span class="pill ${p.is_active ? 'ok' : 'off'}">${p.is_active ? 'ativa' : 'inativa'}</span></td>
+          <td>${fmtDateShort(p.created_at)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderResponsesPerSurvey(r) {
+      const items = r.per_survey;
+      makeChart("chart-responses-per-survey", {
+        type: "bar",
+        data: {
+          labels: items.map(p => truncate(p.title, 28)),
+          datasets: [{ data: items.map(p => p.count), backgroundColor: PALETTE, borderRadius: 6 }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, indexAxis: "y",
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { title: (ctx) => items[ctx[0].dataIndex].title } },
+          },
+          scales: {
+            x: { ticks: { precision: 0 }, grid: { color: "#233056" } },
+            y: { grid: { display: false } },
+          },
+        },
+      });
+    }
+
+    function renderResponsesDaily(r) {
+      const labels = r.daily.map(p => p.day ? new Date(p.day).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : "—");
+      const total30 = r.daily.reduce((s, p) => s + (p.count || 0), 0);
+      document.getElementById("badge-responses-daily").textContent = `${fmtNumber(total30)} no período`;
+      makeChart("chart-responses-daily", {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            data: r.daily.map(p => p.count),
+            borderColor: "#a78bfa",
+            backgroundColor: "rgba(167,139,250,0.18)",
+            fill: true, tension: 0.3, pointRadius: 3, pointHoverRadius: 6,
+            pointBackgroundColor: "#a78bfa",
+          }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { ticks: { precision: 0 }, grid: { color: "#233056" } },
+          },
+        },
+      });
+    }
+
+    function renderLogsEvents(l) {
+      makeChart("chart-logs-events", {
+        type: "polarArea",
+        data: {
+          labels: ["Acessos", "Dropouts", "Acessibilidade"],
+          datasets: [{
+            data: [l.accesses, l.dropouts, l.accessibility_interactions],
+            backgroundColor: ["rgba(74,222,128,0.6)", "rgba(248,113,113,0.6)", "rgba(167,139,250,0.6)"],
+            borderColor: ["#4ade80", "#f87171", "#a78bfa"],
+            borderWidth: 1,
+          }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom", labels: { padding: 12, boxWidth: 12 } } },
+          scales: { r: { ticks: { display: false }, grid: { color: "#233056" } } },
+        },
+      });
+    }
+
+    function renderLogsDropout(l) {
+      const rate = l.dropout_rate || 0;
+      const remaining = Math.max(0, 1 - rate);
+      const color = rate > 0.3 ? "#f87171" : rate > 0.15 ? "#facc15" : "#4ade80";
+      makeChart("chart-logs-dropout", {
+        type: "doughnut",
+        data: {
+          labels: ["Dropout", "Concluído"],
+          datasets: [{ data: [rate, remaining], backgroundColor: [color, "#233056"], borderWidth: 0 }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: "75%",
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${(ctx.parsed * 100).toFixed(1)}%` } },
+          },
+        },
+        plugins: [{
+          id: "centerText",
+          afterDraw(chart) {
+            const { ctx, chartArea: { width, height, top, left } } = chart;
+            ctx.save();
+            ctx.fillStyle = color;
+            ctx.font = "700 28px -apple-system, sans-serif";
+            ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.fillText(`${(rate * 100).toFixed(1)}%`, left + width / 2, top + height / 2 - 6);
+            ctx.fillStyle = "#8b9bbf";
+            ctx.font = "500 11px -apple-system, sans-serif";
+            ctx.fillText("dropout", left + width / 2, top + height / 2 + 16);
+            ctx.restore();
+          },
+        }],
+      });
+    }
+
+    function renderTopLogs(l) {
+      const tbody = document.querySelector("#table-top-logs tbody");
+      if (!l.top_logs.length) { tbody.innerHTML = `<tr><td colspan="4" class="empty">Sem logs ainda</td></tr>`; return; }
+      tbody.innerHTML = l.top_logs.map(t => `
+        <tr>
+          <td>#${t.response_id}</td>
+          <td class="num">${fmtNumber(t.accesses)}</td>
+          <td class="num">${fmtNumber(t.dropouts)}</td>
+          <td class="num">${fmtNumber(t.accessibility_interactions)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderAb(ab) {
+      document.getElementById("badge-ab-total").textContent = `${fmtNumber(ab.total)} visitantes`;
+      makeChart("chart-ab", {
+        type: "doughnut",
+        data: {
+          labels: ab.targets.map(t => t.target),
+          datasets: [{
+            data: ab.targets.map(t => t.visitors),
+            backgroundColor: ["#38bdf8", "#fb923c"],
+            borderWidth: 0,
+          }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: "55%",
+          plugins: { legend: { position: "bottom", labels: { padding: 14, boxWidth: 12 } } },
+        },
+      });
+      const tbody = document.querySelector("#table-ab-targets tbody");
+      tbody.innerHTML = ab.targets.map(t => `
+        <tr>
+          <td>${t.target}</td>
+          <td><a href="${t.url}" target="_blank" rel="noopener">${truncate(t.url, 48)}</a></td>
+          <td class="num">${fmtNumber(t.visitors)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderAll(d) {
+      lastData = d;
+      renderKpis(d);
+      renderSurveysStatus(d.surveys);
+      renderSurveysByType(d.surveys);
+      renderSurveysMonthly(d.surveys);
+      renderRecentSurveys(d.surveys);
+      renderResponsesPerSurvey(d.responses);
+      renderResponsesDaily(d.responses);
+      renderLogsEvents(d.logs);
+      renderLogsDropout(d.logs);
+      renderTopLogs(d.logs);
+      renderAb(d.ab_test);
+      document.getElementById("meta").innerHTML =
+        `<span class="pulse"></span>Atualizado às ${new Date().toLocaleTimeString("pt-BR")} · ${DATA_URL}`;
+    }
+
+    async function load() {
+      const btn = document.getElementById("refresh");
+      const errEl = document.getElementById("error");
+      const loadingEl = document.getElementById("loading");
+      const contentEl = document.getElementById("content");
+
+      btn.disabled = true;
+      errEl.style.display = "none";
+
+      try {
+        const res = await fetch(DATA_URL, { headers: { Accept: "application/json" } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderAll(data);
+        loadingEl.style.display = "none";
+        contentEl.style.display = "grid";
+      } catch (e) {
+        errEl.textContent = `Falha ao carregar ${DATA_URL}: ${e.message}`;
+        errEl.style.display = "block";
+        loadingEl.style.display = "none";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById("refresh").addEventListener("click", load);
+    document.getElementById("auto-refresh").addEventListener("change", (e) => {
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+      if (e.target.checked) autoTimer = setInterval(load, 30000);
+    });
+    document.getElementById("export").addEventListener("click", () => {
+      if (!lastData) return;
+      const blob = new Blob([JSON.stringify(lastData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `catalisa-dashboard-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    load();
+  </script>
+</body>
+</html>
